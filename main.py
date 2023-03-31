@@ -96,7 +96,7 @@ else:
     settings = safe_load(open('Settings.yml', 'r', errors='ignore'))
 
 class Azura:
-    version = '1.10'
+    version = '1.0'
     updates = bool(settings['settings']['azura']['updates'])
     color_primary = str(settings['settings']['console']['primary_color'])
     secundary_color = str(settings['settings']['console']['secundary_color'])
@@ -347,7 +347,6 @@ class AzuraChecker:
                     pass
                 else:
                     value = ctypes.windll.user32.MessageBoxW(0, f'New update detected\n\n{Azura.version} -> {g}\n\nDo you want to download it?', 'Azura Updater', 4)
-                    print(value)
                     if int(value) == 7:
                         pass
                     else:
