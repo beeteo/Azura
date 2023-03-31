@@ -1381,6 +1381,7 @@ class AzuraChecker:
             sleep(0.1)
         for i in thread:
             i.join()
+            
         top = False
         input()
 
