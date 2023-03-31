@@ -201,7 +201,6 @@ class AzuraChecker:
         self.get_update()
         self.Main()
         
-
     def bs4(self, auth: str, type: str):
         if type == 'encoding':
             message = auth
@@ -214,64 +213,6 @@ class AzuraChecker:
             message_bytes = base64.b64decode(base64_bytes)
             message = message_bytes.decode('ascii')
             return message
-    
-    def Auth(self):
-        print(text)
-        if path.exists('cracked.io'):
-            auth_decoding_ = open('cracked.io', encoding='UTF-8').read()
-            json = {
-                "a": "auth",
-                "k": str(self.bs4(auth=auth_decoding_, type='decoding')),
-                "hwid": str(uuid.getnode())
-            }
-            request = requests.post(url='https://cracked.io/auth.php', data=json)
-
-            if '"auth":true' in request.text:
-                print(f'{secundary_color}| {color_primary}Welcome, {secundary_color}{request.json()["username"]}')
-                self.cracked_name = request.json()["username"]
-                
-                if not path.exists('cracked.io'):
-                    open('cracked.io', 'w').write(self.bs4(auth=auth, type='encoding'))
-                    
-                sleep(2)
-                console.clear()
-                self.Main()
-            elif '"error":"invalid key"' in request.text:
-                print(f'\n{secundary_color}| {color_primary}Ooops! It seems your license is invalid, get it at https://cracked.io/auth.php')
-                sleep(5)
-                quit()
-            else:
-                print(f'\n{secundary_color}| {color_primary}Oh, an unknown error appears, please try again.')
-                sleep(5)
-                quit()
-        else:
-            auth = input(f'\n{secundary_color}| {color_primary}Enter your {secundary_color}cracked.io auth key{color_primary} > ')
-            json = {
-                "a": "auth",
-                "k": str(auth),
-                "hwid": str(uuid.getnode())
-            }
-            
-            request = requests.post(url='https://cracked.io/auth.php', data=json)
-            
-            if '"auth":true' in request.text:
-                print(f'{secundary_color}| {color_primary}Welcome, {secundary_color}{request.json()["username"]}')
-                self.cracked_name = request.json()["username"]
-                
-                if not path.exists('cracked.io'):
-                    open('cracked.io', 'w').write(self.bs4(auth=auth, type='encoding'))
-                    
-                sleep(2)
-                console.clear()
-                self.Main()
-            elif '"error":"invalid key"' in request.text:
-                print(f'{Fore.LIGHTRED_EX}| {color_primary}Ooops! It seems your license is invalid, get it at https://cracked.io/auth.php')
-                sleep(5)
-                quit()
-            else:
-                print(f'{Fore.LIGHTRED_EX}| {color_primary}Oh, an unknown error appears, please try again.')
-                sleep(5)
-                quit()
 
     def ComboLoad(self):
         file = fileopenbox(
@@ -1337,6 +1278,13 @@ class AzuraChecker:
             system('pause>nul')
     
     def proxychecker(self):
+        self.valid_ = 0
+        self.invalid_ = 0
+        self.checked_ = 0
+        self.cpm_ = 0
+        self.total_ = 0
+        self.top_ = False
+
         if not path.exists('results'):
             mkdir('results')
         
@@ -1371,10 +1319,26 @@ class AzuraChecker:
             proxyy = x.read().splitlines()
 
         print(f'{secundary_color}> {secundary_color}{len(proxyy)} {color_primary}{secundary_color}{proxysd}{color_primary} loaded successfully')
+        self.total_ = len(proxyy)
         url = str(input(f'{secundary_color}> Website{color_primary} url for {secundary_color}checking {color_primary}proxies {secundary_color}> '))
         print(f'{secundary_color}> {color_primary}Starting threads.')
+        
+        def cpm_counter():
+            while top:
+                if self.checked_ >= 1:
+                    now = self.checked_
+                    sleep(1)
+                    self.cpm_ = (self.checked_ - now) * 20
+
+        def title():
+            while top:
+                console.set_title(f'Azura | ProxyChecker | Valid: {self.valid_} - Invalid: {self.invalid_} | Checked: {self.checked_} - Remaining: {self.total_ - self.checked_} | CPMs: {self.cpm_} | Type: {proxysd}')
 
         def checker(proxy, url):
+            if '\n' in proxy:
+                proxy = proxy.split('\n')
+            else:
+                proxy = proxy
             if pr == '1':
                 proxysdd = {'http': f"http://{proxy}", 'https': f"https://{proxy}"}
             elif pr == '2':
@@ -1388,27 +1352,37 @@ class AzuraChecker:
                 respone = s.get(url, timeout = 5, proxies=proxysdd)
                 
                 if respone.status_code == 200:
+                    self.valid_ += 1
+                    self.checked_ += 1
                     print(f'{Fore.LIGHTGREEN_EX}> {secundary_color}{proxy} - Status: {Fore.LIGHTGREEN_EX}Working')
                     with open(f'results/ProxyChecker/{unix}/{proxysd}-alive.txt','a') as file:
                         file.write(proxy + '\n')
                 else:
+                    self.invalid_ += 1
+                    self.checked_ += 1
                     print(f'{Fore.RED}> {secundary_color}{proxy} - Status: {Fore.RED}Bad')
                     with open(f'results/ProxyChecker/{unix}/{proxysd}-bad.txt','a') as file:
                         file.write(proxy + '\n')
             except:
+                self.invalid_ += 1
+                self.checked_ += 1
                 print(f'{Fore.RED}> {secundary_color}{proxy} - Status: {Fore.RED}Bad')
-                with open(f'results/ProxyChecker/{unix}/{proxysd}-bad','a') as file:
+                with open(f'results/ProxyChecker/{unix}/{proxysd}-bad.txt','a') as file:
                     file.write(proxy + '\n')
 
         thread = []
-        
+        top = True
+        threading.Thread(target=cpm_counter, daemon=True).start()
         for proxy in proxyy:
-            print(proxy)
+            threading.Thread(target=title).start()
             t = threading.Thread(target = checker,args=(proxy, url))
             t.start()
             thread.append(t)
+            sleep(0.1)
         for i in thread:
             i.join()
+        top = False
+        input()
 
     def tools(self):
         console.clear()
